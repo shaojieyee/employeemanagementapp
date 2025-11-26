@@ -1,7 +1,8 @@
-package digicorp.model;
+package digicorp.entity;
 
 import jakarta.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "employees")
@@ -27,8 +28,8 @@ public class Employee {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<SalaryHistory> salaryHistory;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-    private List<titleHistory> titleHistory;
+    //@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    //private List<titleHistory> titleHistory;
 
     // getters + setters
 }

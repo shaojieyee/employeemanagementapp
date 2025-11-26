@@ -1,4 +1,4 @@
-package digicorp.model;
+package digicorp.entity;
 
 import jakarta.persistence.*;
 
