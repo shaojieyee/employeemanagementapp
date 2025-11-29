@@ -1,0 +1,9 @@
+
+
+# Ignore all files ending with .log in any directory
+*.log
+
+# Ignore an entire directory (trailing slash indicates a directory)
+target/
+.idea/
+.mvn/
