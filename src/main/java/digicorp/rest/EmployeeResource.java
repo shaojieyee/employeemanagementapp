@@ -1,9 +1,7 @@
 package digicorp.rest;
 
-import digicorp.dto.EmployeeRecordDTO;
-import digicorp.entity.Department;
+import digicorp.dto.*;
 import digicorp.entity.Employee;
-import digicorp.services.DepartmentDAO;
 import digicorp.services.EmployeeDAO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -68,6 +66,23 @@ public class EmployeeResource {
 
             return Response.ok(employees).build();
 
+        } finally {
+            em.close();
+        }
+    }
+
+    @POST
+    @Path("/promote")
+    public Response promoteEmployee(PromotionRequestDTO request) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            EmployeeDAO dao = new EmployeeDAO(em);
+            dao.promoteEmployee(request);
+            return Response.ok("{\"message\":\"Promotion successful for empNo " + request.getEmpNo() + "\"}").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
+                    .build();
         } finally {
             em.close();
         }

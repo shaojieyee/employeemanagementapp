@@ -26,7 +26,6 @@ public class TitleHistory {
 
     @Column(name = "to_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
     private LocalDate toDate;
 
     public TitleHistory() {}

@@ -1,10 +1,13 @@
 package digicorp.services;
 
-import digicorp.dto.EmployeeRecordDTO;
+import digicorp.dto.*;
 import digicorp.entity.Employee;
-import digicorp.entity.DeptEmployee;
+import digicorp.entity.TitleHistory;
+import digicorp.entity.TitleHistoryId;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.EntityTransaction;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -55,6 +58,48 @@ public class EmployeeDAO {
     }
 
 
+    public void promoteEmployee(PromotionRequestDTO dto) throws Exception {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
 
+            // 1. Find the employee
+            Employee emp = em.find(Employee.class, dto.getEmpNo());
+            if (emp == null) {
+                throw new Exception("Employee not found with empNo: " + dto.getEmpNo());
+            }
+
+            LocalDate newFromDate = dto.getFromDate();
+
+            // 2. Find current title(s) for this employee
+            TypedQuery<TitleHistory> query = em.createQuery(
+                    "SELECT t FROM TitleHistory t WHERE t.employee.empNo = :empNo AND t.toDate = :maxDate",
+                    TitleHistory.class
+            );
+            query.setParameter("empNo", emp.getEmpNo());
+            query.setParameter("maxDate", LocalDate.of(9999, 1, 1));
+            List<TitleHistory> currentTitles = query.getResultList();
+
+            // 3. Update previous title(s) to end the day before the new promotion
+            for (TitleHistory t : currentTitles) {
+                t.setToDate(newFromDate.minusDays(1));
+                em.merge(t);
+            }
+
+            // 4. Add new title record
+            TitleHistoryId newId = new TitleHistoryId(emp.getEmpNo(), dto.getNewTitle(), newFromDate);
+            TitleHistory newTitle = new TitleHistory();
+            newTitle.setId(newId);
+            newTitle.setEmployee(emp);
+            newTitle.setToDate(LocalDate.of(9999, 1, 1));
+
+            em.persist(newTitle);
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        }
+    }
 
 }
